@@ -1,0 +1,1 @@
+from gym_maze_exploration.envs.maze_env import MazeEnv
