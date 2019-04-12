@@ -79,7 +79,7 @@ class MazeEnv(gym.Env):
 		draw_player(self.game.position)
 		draw_target(self.game.target_position)
 
-		time.sleep(0.05)
+		time.sleep(1)
 		if close:
 			pygame.quit()
 

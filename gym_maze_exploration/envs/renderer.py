@@ -1,6 +1,6 @@
 import pygame
-import numpy as np
 import sys
+import time
 
 light_gray = (211, 211, 211)
 gray =  (150, 150, 150)
