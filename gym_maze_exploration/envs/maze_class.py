@@ -25,6 +25,7 @@ class maze_class:
 		self.shape = source.shape
 		self.source = source
 		self.reset()
+		self.indicator = False
 
 	def reset(self):	
 		self.internal_state = np.zeros(self.shape)
@@ -33,6 +34,17 @@ class maze_class:
 
 		self.position = np.concatenate(np.where(self.source == 2))
 		self.target_position = np.concatenate(np.where(self.source == 3))
+		self.indicator = False
+
+		if 4 in self.source:
+			self.indicator = True
+			self.target_position = []
+			for i in range(3,7):
+				x = np.concatenate(np.where(self.source == i))
+				if len(x) != 0:
+					self.target_position.append(x)
+
+			self.target_position = np.array(self.target_position)
 
 	def step(self, action):
 		# actions possible are 4 (the 4 directions)
@@ -43,13 +55,13 @@ class maze_class:
 		shift = None
 
 		if action == 0:
-			shift = [-1,0]
+			shift = [-1, 0]
 		elif action == 1:
-			shift = [1,0]
+			shift = [1, 0]
 		elif action == 2:
-			shift = [0,1]
+			shift = [0, 1]
 		elif action == 3:
-			shift = [0,-1]
+			shift = [0, -1]
 
 		target = tuple(self.position + shift)
 		if self.internal_state[target] == 0:
@@ -62,20 +74,19 @@ class maze_class:
 
 	def is_target_reached(self):
 		# Boolean function to evaluate if the target has been reached
-
-		return (self.position == self.target_position).all()
+		return np.array([(self.position == x).all() for x in self.target_position[0:2]]).any()
 
 	def __get_view(self):
 		view = np.zeros(self.shape)
 		view += self.internal_state
 
 		view[tuple(self.position)] += 2
-		view[tuple(self.target_position)] += 3
+		view[self.target_position] += 3
 
 		view[view == 5] = 2 #if player reached the final cell
 		return view
 
-	def get_observation(self, radius = 1):
+	def get_observation(self, radius = 1, internal_view = None):
 
 		view = np.ones([radius*2+1]*2)
 
@@ -88,8 +99,7 @@ class maze_class:
 			target_coords[0,0] = -x_min
 			x_min = 0
 
-
-		x_max = self.position[0]+radius + 1
+		x_max = self.position[0] + radius + 1
 		if x_max >= width:
 			target_coords[0,1] = -(x_max - width + 1)
 			x_max = width - 1
@@ -104,7 +114,8 @@ class maze_class:
 			target_coords[1,1] = -(y_max - height + 1)
 			y_max = height - 1
 
-		internal_view = self.__get_view()
+		if internal_view is None:
+			internal_view = self.__get_view()
 
 		observation = internal_view[x_min:x_max,
 									y_min:y_max]
@@ -114,12 +125,16 @@ class maze_class:
 
 		goal = np.array(view == 3, dtype=np.int32)
 
-		view[view == 3] = 0
-		view[view == 2] = 0
+		result= np.array([view, goal])
 
-		state = np.array([view, goal])
+		if self.indicator:
+			tmp = [view]
+			for i in range(3,7):
+				tmp.append(np.array(view == i, dtype=np.int32))
+			result = np.array(tmp)
 
-		return state
+		result[result != 1] = 0
+		return result
 
 	def print(self):
 

@@ -14,7 +14,7 @@ class MazeEnv(gym.Env):
 	ACTION = ["N", "S", "E", "W"]
 
 	def __init__(self, fix_map = False, width = 7, height = 7, radius = 2,
-				 max_steps = 200, final_reward = 10, source = None):
+				max_steps = 200, final_reward = 10, source = None):
 		
 		self.width = width
 		self.height = height
@@ -83,6 +83,8 @@ class MazeEnv(gym.Env):
 		if close:
 			pygame.quit()
 
+	def read_action(self):
+		return get_action()
 
 if __name__ == "__main__":
 	import time

@@ -1,14 +1,21 @@
 import time
 import gym
 import gym_maze_exploration
+import gym_pigchase_topdown
 
-env = gym.make('Maze-Exploration-v0')
+env = gym.make('I-Maze-v0')
 
 _ = env.reset()
+env.render()
+done = False
 
-for _ in range(200):
-	_, _, done, _ = env.step(env.action_space.sample())
+while True:
+	action = env.read_action()
+	if action != -1:
+		_, reward, done, _ = env.step(action)
+		print(reward)
+
 	env.render()
 
 	if done:
-		_ = env.reset()
+		break
